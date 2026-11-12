@@ -83,6 +83,11 @@ footer{margin-top:32px;padding-top:16px;border-top:2px solid var(--linea);font-s
     <button class="sec" id="otro" type="button">Hacer otro certificado</button>
   </section>
 
+  <section id="cerrado" class="oculto">
+    <h1>La descarga de certificados ya cerró</h1>
+    <p class="bajada">Se podía pedir hasta el 20 de noviembre a las 15.</p>
+  </section>
+
   <footer>Usamos tu nombre, DNI y correo solo para armar y mandarte el certificado y para llevar el registro de quienes participaron de la jornada.<br>Organizan Programa Emprender La Pampa, Ministerio de Educación, Secretaría de Trabajo y Promoción del Empleo, Subsecretaría de Juventud y Municipio de Catriló.</footer>
 </div>
 
@@ -94,6 +99,19 @@ const W = 2340, H = 1655;
 const $ = id => document.getElementById(id);
 let pdfBlob = null, pngBlob = null, nombreArchivo = '';
 const CON_CORREO = URL_ENVIO.startsWith('https://');
+
+// Cierre: 20 de noviembre de 2026 a las 15 (hora de Argentina)
+const CIERRE = Date.parse('2026-11-20T15:00:00-03:00');
+function revisarCierre() {
+  if (Date.now() < CIERRE) return false;
+  $('pasoForm').classList.add('oculto');
+  $('listo').classList.remove('ver');
+  $('listo').classList.add('oculto');
+  $('cerrado').classList.remove('oculto');
+  return true;
+}
+revisarCierre();
+setInterval(revisarCierre, 60000);
 
 const PARTICULAS = ['de', 'del', 'la', 'las', 'los', 'y', 'da', 'di', 'van', 'von'];
 function titulo(t) {
@@ -134,6 +152,7 @@ async function enviar(datos) {
 
 $('f').addEventListener('submit', async e => {
   e.preventDefault();
+  if (revisarCierre()) return;
   const n = titulo($('nombre').value), a = titulo($('apellido').value), d = $('dni').value.replace(/\D/g, ''), m = $('correo').value.trim().toLowerCase();
   $('eNombre').textContent = n.length < 2 ? 'Escribí tu nombre.' : '';
   $('eApellido').textContent = a.length < 2 ? 'Escribí tu apellido.' : '';
